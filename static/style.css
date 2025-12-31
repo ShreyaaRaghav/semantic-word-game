@@ -1,4 +1,3 @@
-/* ---------- ROOT ---------- */
 :root {
   --bg: #0f172a;
   --panel: #13131a;
@@ -9,7 +8,6 @@
   --muted: #a1a1b3;
 }
 
-/* ---------- RESET ---------- */
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +21,6 @@ body {
   line-height: 1.6;
 }
 
-/* ---------- HOME ---------- */
 .Home {
   min-height: 100vh;
   display: flex;
@@ -51,7 +48,6 @@ body {
   margin-top: 0.5rem;
 }
 
-/* ---------- NAV BUTTONS ---------- */
 .buttons {
   display: flex;
   gap: 1.5rem;
@@ -75,7 +71,6 @@ body {
   box-shadow: 0 14px 40px var(--accent-soft);
 }
 
-/* ---------- SECTIONS ---------- */
 .mod-section {
   min-height: 100vh;
   padding: 5rem 2rem;
@@ -95,7 +90,6 @@ body {
   margin: 0 auto 2rem;
 }
 
-/* ---------- FORMS ---------- */
 .mod-section form {
   margin-top: 1rem;
 }
@@ -119,7 +113,6 @@ body {
   cursor: pointer;
 }
 
-/* ---------- GIVE UP ---------- */
 .giveup-btn {
   margin-top: 1rem;
   background: transparent;
@@ -132,7 +125,6 @@ body {
   color: white;
 }
 
-/* ---------- HISTORY ---------- */
 .guess-list {
   list-style: none;
   margin-top: 2rem;
@@ -158,7 +150,6 @@ body {
   opacity: 0.85;
 }
 
-/* ---------- ANSWER ---------- */
 .answer-box {
   margin-top: 1.4rem;
   padding: 0.8rem 1rem;
@@ -167,7 +158,6 @@ body {
   border: 1px solid var(--accent-soft);
 }
 
-/* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
   .buttons {
     flex-direction: column;

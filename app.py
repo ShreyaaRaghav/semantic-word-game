@@ -14,11 +14,9 @@ def add_no_cache_headers(response):
     return response
 
 
-# ---------- HOME / MAIN GAME ----------
 @app.route("/", methods=["GET", "POST"])
 def home():
 
-    # Reset on reload OR explicit new game
     if request.method == "GET" and (request.args.get("new") == "1" or not request.referrer):
         session.clear()
 
@@ -27,7 +25,6 @@ def home():
     session.setdefault("gave_up_glove", False)
     session.setdefault("gave_up_sbert", False)
 
-    # Handle guess submission
     if request.method == "POST":
         guess = request.form.get("guess")
         model = request.form.get("model")
@@ -63,7 +60,6 @@ def home():
     )
 
 
-# ---------- GIVE UP ROUTE ----------
 @app.route("/giveup", methods=["POST"])
 def give_up():
     model = request.form.get("model")
