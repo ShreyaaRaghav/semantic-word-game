@@ -1,0 +1,175 @@
+/* ---------- ROOT ---------- */
+:root {
+  --bg: #0f172a;
+  --panel: #13131a;
+  --card: #1b1b25;
+  --accent: #0e5f8e;
+  --accent-soft: rgba(139, 92, 246, 0.35);
+  --text: #e7e7ef;
+  --muted: #a1a1b3;
+}
+
+/* ---------- RESET ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top, #111118, var(--bg));
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ---------- HOME ---------- */
+.Home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 3rem;
+}
+
+.Home h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  transition: transform 0.2s ease;
+}
+
+.Home h1:hover {
+  transform: scale(1.06);
+}
+
+.Home p {
+  color: var(--muted);
+  max-width: 520px;
+  margin-top: 0.5rem;
+}
+
+/* ---------- NAV BUTTONS ---------- */
+.buttons {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.buttons button {
+  padding: 0.8rem 2.6rem;
+  font-size: 1rem;
+  background: linear-gradient(135deg, var(--accent), #6d28d9);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 10px 30px var(--accent-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px var(--accent-soft);
+}
+
+/* ---------- SECTIONS ---------- */
+.mod-section {
+  min-height: 100vh;
+  padding: 5rem 2rem;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+}
+
+.mod-section h2 {
+  font-size: 2.1rem;
+  margin-bottom: 0.8rem;
+}
+
+.mod-describe {
+  color: var(--muted);
+  max-width: 640px;
+  margin: 0 auto 2rem;
+}
+
+/* ---------- FORMS ---------- */
+.mod-section form {
+  margin-top: 1rem;
+}
+
+.mod-section input {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #2a2a3a;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.mod-section button {
+  margin-left: 0.6rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+/* ---------- GIVE UP ---------- */
+.giveup-btn {
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.giveup-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* ---------- HISTORY ---------- */
+.guess-list {
+  list-style: none;
+  margin-top: 2rem;
+}
+
+.guess-row {
+  width: 300px;
+  margin: 6px auto;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  background: var(--card);
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
+}
+
+.guess-row.correct {
+  background: linear-gradient(135deg, #1b5e20, #14532d);
+  font-weight: 600;
+}
+
+.guess-score {
+  opacity: 0.85;
+}
+
+/* ---------- ANSWER ---------- */
+.answer-box {
+  margin-top: 1.4rem;
+  padding: 0.8rem 1rem;
+  background: #141420;
+  border-radius: 10px;
+  border: 1px solid var(--accent-soft);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+  .buttons {
+    flex-direction: column;
+  }
+}

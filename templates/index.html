@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CONTEXTO</title>
+  <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="Home">
+  <h1>Contexto Game</h1>
+  <p>Compare semantic similarity using two different approaches</p>
+
+  <div class="buttons">
+    <button onclick="scrollToSection('glove')">GloVe</button>
+    <button onclick="scrollToSection('sbert')">SBERT</button>
+  </div>
+</div>
+
+<!-- ================= GLOVE ================= -->
+<section id="glove" class="mod-section">
+  <h2>High-speed semantic similarity using GloVe embeddings</h2>
+  <p class="mod-describe">Optimized for speed. Enter your guess:</p>
+
+  {% if glove_answer %}
+    <div class="answer-box">Answer: <strong>{{ glove_answer }}</strong></div>
+  {% else %}
+    <form method="POST">
+      <input type="hidden" name="model" value="glove">
+      <input type="hidden" name="scroll" value="glove">
+      <input type="text" name="guess" required placeholder="Enter word">
+      <button type="submit">Check</button>
+    </form>
+
+    <form method="POST" action="/giveup">
+      <input type="hidden" name="model" value="glove">
+      <button type="submit" class="giveup-btn">Give Up</button>
+    </form>
+  {% endif %}
+
+  <form method="GET" action="/">
+    <input type="hidden" name="new" value="1">
+    <button class="giveup-btn">New Game</button>
+  </form>
+
+  <ul class="guess-list">
+    {% for g in glove_history %}
+      <li class="guess-row {% if g.correct %}correct{% endif %}">
+        <span>{{ g.word }}</span>
+        <span>{{ "%.2f"|format(g.score) }}%</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- ================= SBERT ================= -->
+<section id="sbert" class="mod-section">
+  <h2>Context-aware semantic similarity using SBERT</h2>
+  <p class="mod-describe">Deep contextual understanding. Enter your guess:</p>
+
+  {% if sbert_answer %}
+    <div class="answer-box">Answer: <strong>{{ sbert_answer }}</strong></div>
+  {% else %}
+    <form method="POST">
+      <input type="hidden" name="model" value="sbert">
+      <input type="hidden" name="scroll" value="sbert">
+      <input type="text" name="guess" required placeholder="Enter word">
+      <button type="submit">Check</button>
+    </form>
+
+    <form method="POST" action="/giveup">
+      <input type="hidden" name="model" value="sbert">
+      <button type="submit" class="giveup-btn">Give Up</button>
+    </form>
+  {% endif %}
+
+  <form method="GET" action="/">
+    <input type="hidden" name="new" value="1">
+    <button class="giveup-btn">New Game</button>
+  </form>
+
+  <ul class="guess-list">
+    {% for g in sbert_history %}
+      <li class="guess-row {% if g.correct %}correct{% endif %}">
+        <span>{{ g.word }}</span>
+        <span>{{ "%.2f"|format(g.score) }}%</span>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script>
+function scrollToSection(id) {
+  localStorage.setItem("scrollTarget", id);
+  document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+}
+
+window.addEventListener("load", () => {
+  const target = localStorage.getItem("scrollTarget");
+  if (target) {
+    document.getElementById(target).scrollIntoView();
+    localStorage.removeItem("scrollTarget");
+  }
+});
+</script>
+
+</body>
+</html>
