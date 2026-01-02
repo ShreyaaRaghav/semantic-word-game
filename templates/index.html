@@ -18,89 +18,109 @@
   </div>
 </div>
 
+<!-- ================= GLOVE ================= -->
 <section id="glove" class="mod-section">
   <h2>High-speed semantic similarity using GloVe embeddings</h2>
-  <p class="mod-describe">Optimized for speed. Enter your guess:</p>
 
-  {% if glove_answer %}
-    <div class="answer-box">Answer: <strong>{{ glove_answer }}</strong></div>
-  {% else %}
-    <form method="POST">
-      <input type="hidden" name="model" value="glove">
-      <input type="hidden" name="scroll" value="glove">
-      <input type="text" name="guess" required placeholder="Enter word">
-      <button type="submit">Check</button>
-    </form>
+  <div id="glove-answer"></div>
 
-    <form method="POST" action="/giveup">
-      <input type="hidden" name="model" value="glove">
-      <button type="submit" class="giveup-btn">Give Up</button>
-    </form>
-  {% endif %}
-
-  <form method="GET" action="/">
-    <input type="hidden" name="new" value="1">
-    <button class="giveup-btn">New Game</button>
+  <form onsubmit="submitGuess(event, 'glove')">
+    <input id="glove-input" required placeholder="Enter word">
+    <button type="submit">Check</button>
   </form>
 
-  <ul class="guess-list">
-    {% for g in glove_history %}
-      <li class="guess-row {% if g.correct %}correct{% endif %}">
-        <span>{{ g.word }}</span>
-        <span>{{ "%.2f"|format(g.score) }}%</span>
-      </li>
-    {% endfor %}
-  </ul>
+  <button class="giveup-btn" onclick="giveUp('glove')">Give Up</button>
+  <button class="giveup-btn" onclick="newGame()">New Game</button>
+
+  <!-- 🔥 GUESS HISTORY BACK -->
+  <ul class="guess-list" id="glove-history"></ul>
 </section>
 
+<!-- ================= SBERT ================= -->
 <section id="sbert" class="mod-section">
   <h2>Context-aware semantic similarity using SBERT</h2>
-  <p class="mod-describe">Deep contextual understanding. Enter your guess:</p>
 
-  {% if sbert_answer %}
-    <div class="answer-box">Answer: <strong>{{ sbert_answer }}</strong></div>
-  {% else %}
-    <form method="POST">
-      <input type="hidden" name="model" value="sbert">
-      <input type="hidden" name="scroll" value="sbert">
-      <input type="text" name="guess" required placeholder="Enter word">
-      <button type="submit">Check</button>
-    </form>
+  <div id="sbert-answer"></div>
 
-    <form method="POST" action="/giveup">
-      <input type="hidden" name="model" value="sbert">
-      <button type="submit" class="giveup-btn">Give Up</button>
-    </form>
-  {% endif %}
-
-  <form method="GET" action="/">
-    <input type="hidden" name="new" value="1">
-    <button class="giveup-btn">New Game</button>
+  <form onsubmit="submitGuess(event, 'sbert')">
+    <input id="sbert-input" required placeholder="Enter word">
+    <button type="submit">Check</button>
   </form>
 
-  <ul class="guess-list">
-    {% for g in sbert_history %}
-      <li class="guess-row {% if g.correct %}correct{% endif %}">
-        <span>{{ g.word }}</span>
-        <span>{{ "%.2f"|format(g.score) }}%</span>
-      </li>
-    {% endfor %}
-  </ul>
+  <button class="giveup-btn" onclick="giveUp('sbert')">Give Up</button>
+  <button class="giveup-btn" onclick="newGame()">New Game</button>
+
+  <!-- 🔥 GUESS HISTORY BACK -->
+  <ul class="guess-list" id="sbert-history"></ul>
 </section>
 
 <script>
 function scrollToSection(id) {
-  localStorage.setItem("scrollTarget", id);
   document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
-window.addEventListener("load", () => {
-  const target = localStorage.getItem("scrollTarget");
-  if (target) {
-    document.getElementById(target).scrollIntoView();
-    localStorage.removeItem("scrollTarget");
-  }
-});
+/* ---------- GUESS ---------- */
+function submitGuess(e, model) {
+  e.preventDefault();
+
+  const input = document.getElementById(model + "-input");
+  const history = document.getElementById(model + "-history");
+
+  fetch("/guess", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: model,
+      guess: input.value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.locked) return;
+
+    const li = document.createElement("li");
+    li.className = "guess-row";
+    if (data.correct) {
+  li.classList.add("correct");
+
+  document.getElementById(model + "-answer").innerHTML =
+    `<div class="answer-box">Answer: <strong>${input.value}</strong></div>`;
+
+  // lock inputs
+  input.disabled = true;
+}
+
+
+    li.innerHTML = `
+      <span>${input.value}</span>
+      <span>${data.score.toFixed(2)}%</span>
+    `;
+
+    history.appendChild(li);
+    input.value = "";
+    scrollToSection(model);
+  });
+}
+
+/* ---------- GIVE UP ---------- */
+function giveUp(model) {
+  fetch("/giveup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById(model + "-answer").innerHTML =
+      `<div class="answer-box">Answer: <strong>${data.answer}</strong></div>`;
+  });
+}
+
+/* ---------- NEW GAME ---------- */
+function newGame() {
+  fetch("/newgame", { method: "POST" })
+    .then(() => location.reload());
+}
 </script>
 
 </body>

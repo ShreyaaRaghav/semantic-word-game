@@ -1,76 +1,81 @@
-from flask import Flask, redirect, render_template, request, session, url_for
-from GloveContexto import glove_similarity, TARGET_WORD as GLOVE_TARGET
-from SBERTContexto import sbert_similarity, TARGET_WORD as SBERT_TARGET
+from flask import Flask, render_template, request, jsonify, session
+from GloveContexto import glove_similarity, new_target as new_glove_target
+from SBERTContexto import sbert_similarity, new_target as new_sbert_target
 
 app = Flask(__name__)
-app.secret_key = "contexto-secret-key"
+app.secret_key = "dev-secret-key"
+
+SIM_THRESHOLD = 99.5
 
 
-@app.after_request
-def add_no_cache_headers(response):
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    return response
+def new_game():
+    session.clear()
+    session["glove_target"] = new_glove_target()
+    session["sbert_target"] = new_sbert_target()
+    session["glove_guesses"] = []
+    session["sbert_guesses"] = []
+    session["glove_giveup"] = False
+    session["sbert_giveup"] = False
 
 
-@app.route("/", methods=["GET", "POST"])
-def home():
+@app.route("/", methods=["GET"])
+def index():
+    new_game()   # reload = new game
+    return render_template("index.html")
 
-    if request.method == "GET" and (request.args.get("new") == "1" or not request.referrer):
-        session.clear()
 
-    session.setdefault("glove_history", [])
-    session.setdefault("sbert_history", [])
-    session.setdefault("gave_up_glove", False)
-    session.setdefault("gave_up_sbert", False)
+@app.route("/guess", methods=["POST"])
+def guess():
+    data = request.json
+    model = data["model"]
+    guess_word = data["guess"].lower()
 
-    if request.method == "POST":
-        guess = request.form.get("guess")
-        model = request.form.get("model")
-        scroll = request.form.get("scroll")
+    if model == "glove":
+        if session["glove_giveup"]:
+            return jsonify({"locked": True})
 
-        if model == "glove" and not session["gave_up_glove"]:
-            response = glove_similarity(guess)
-            if "score" in response:
-                session["glove_history"].append({
-                    "word": response["word"],
-                    "score": float(response["score"]),
-                    "correct": response["correct"]
-                })
+        result = glove_similarity(guess_word, session["glove_target"])
+        if "error" in result:
+            return jsonify(result)
 
-        elif model == "sbert" and not session["gave_up_sbert"]:
-            response = sbert_similarity(guess)
-            if "score" in response:
-                session["sbert_history"].append({
-                    "word": response["word"],
-                    "score": float(response["score"]),
-                    "correct": response["correct"]
-                })
+        session["glove_guesses"].append(
+            (result["word"], round(result["score"], 2))
+        )
 
-        session.modified = True
-        return redirect(url_for("home") + f"#{scroll}")
+    else:
+        if session["sbert_giveup"]:
+            return jsonify({"locked": True})
 
-    return render_template(
-        "index.html",
-        glove_history=session["glove_history"],
-        sbert_history=session["sbert_history"],
-        glove_answer=GLOVE_TARGET if session["gave_up_glove"] else None,
-        sbert_answer=SBERT_TARGET if session["gave_up_sbert"] else None
-    )
+        result = sbert_similarity(guess_word, session["sbert_target"])
+        if "error" in result:
+            return jsonify(result)
+
+        session["sbert_guesses"].append(
+            (result["word"], round(result["score"], 2))
+        )
+
+    return jsonify({
+        "score": result["score"],
+        "correct": result["correct"]
+    })
 
 
 @app.route("/giveup", methods=["POST"])
-def give_up():
-    model = request.form.get("model")
+def giveup():
+    model = request.json["model"]
 
     if model == "glove":
-        session["gave_up_glove"] = True
-    elif model == "sbert":
-        session["gave_up_sbert"] = True
+        session["glove_giveup"] = True
+        return jsonify({"answer": session["glove_target"]})
 
-    session.modified = True
-    return redirect(url_for("home") + f"#{model}")
+    session["sbert_giveup"] = True
+    return jsonify({"answer": session["sbert_target"]})
+
+
+@app.route("/newgame", methods=["POST"])
+def restart():
+    new_game()
+    return jsonify({"status": "reset"})
 
 
 if __name__ == "__main__":
