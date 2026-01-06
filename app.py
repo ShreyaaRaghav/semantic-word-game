@@ -5,7 +5,8 @@ from SBERTContexto import sbert_similarity, new_target as new_sbert_target
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
 
-SIM_THRESHOLD = 99.5
+SIM_THRESHOLD = 99.5 
+#unused right now, for future work
 
 
 def new_game():
